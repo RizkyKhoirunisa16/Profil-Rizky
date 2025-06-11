@@ -1,29 +1,36 @@
-
+// Event ini dijalankan ketika service worker pertama kali di-*install*
 self.addEventListener("install", async event => {
+  // Membuka (atau membuat) cache baru bernama "pwa-assets"
   const cache = await caches.open("pwa-assets");
-  // it stores all resources on first SW install
-  cache.addAll(["/",
-  "./index.html",
-  "./skills.html",
-  "./hobby.html",
-  "./style.css",
-  "./app.js",
-  "./rizky.jpg",
-  "./prau.jpg",
-  "./mongkrang1.jpg",
-  "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Progressive_Web_Apps_Logo.svg/640px-Progressive_Web_Apps_Logo.svg.png",
-  "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css",
-  "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js",
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+
+  // Menambahkan semua file yang dibutuhkan aplikasi agar bisa bekerja offline
+  cache.addAll([
+    "/", // root (mungkin tidak perlu jika tidak digunakan)
+    "./index.html", // halaman utama
+    "./skills.html", // halaman skills
+    "./hobby.html", // halaman hobby
+    "./style.css", // file CSS utama
+    "./app.js", // file JavaScript utama
+    "./rizky.jpg", // gambar profil
+    "./prau.jpg", // gambar prau
+    "./mongkrang1.jpg", // gambar mongkrang
+
+    // Link CDN eksternal (harus hati-hati, bisa gagal dicache karena CORS)
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Progressive_Web_Apps_Logo.svg/640px-Progressive_Web_Apps_Logo.svg.png",
+    "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css",
+    "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   ]); 
 });
- 
+
+// Event ini dijalankan setiap kali browser melakukan permintaan (request) ke server
 self.addEventListener("fetch", event => {
-   event.respondWith(
-     caches.match(event.request).then(cachedResponse => {
-	   // It can update the cache to serve updated content on the next request
-         return cachedResponse || fetch(event.request);
-     }
-   )
-  )
+  event.respondWith(
+    // Mengecek apakah file yang diminta sudah ada di cache
+    caches.match(event.request).then(cachedResponse => {
+      // Jika ada di cache, kembalikan dari cache
+      // Jika tidak, ambil dari server (fetch)
+      return cachedResponse || fetch(event.request);
+    })
+  );
 });
